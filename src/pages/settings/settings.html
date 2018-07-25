@@ -1,0 +1,66 @@
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>{{ pageTitle }}</ion-title>
+    <ion-buttons end *ngIf="page == 'profile'">
+        <button ion-button (click)="updateProfile()" [disabled]="!isReadyToSave" strong>
+          <span color="primary" showWhen="ios">
+            {{ 'DONE_BUTTON' | translate }}
+          </span>
+          <ion-icon name="md-checkmark" showWhen="core,android,windows"></ion-icon>
+        </button>
+    </ion-buttons>
+  </ion-navbar>
+
+</ion-header>
+
+<ion-content>
+  <ion-list *ngIf="page == 'main'">
+    <button *ngIf="user && user.admin" ion-item class="ion-btn-param" (click)="openAdmin()">
+      Admin
+    </button>
+    <button *ngIf="user && user.admin" ion-item class="ion-btn-param" (click)="openTypes()">
+      Admin (types) Beta~v1.01
+    </button>
+    <button ion-item class="ion-btn-param" (click)="openUser(user, user.id)">
+      Mon profil
+    </button>
+    <button ion-item class="ion-btn-param" [navPush]="subSettings" [navParams]="profileSettings">
+      Editer son profil
+    </button>
+    <button ion-item class="ion-btn-param" (click)="deleteAccount()" style="color: red">
+      Supprimer son compte
+    </button>
+    <button ion-item class="ion-btn-param" (click)="disconnect()">
+      Se déconnecter
+    </button>
+  </ion-list>
+
+  <ion-list *ngIf="page == 'profile'">
+    
+    <form *ngIf="formProfile" [formGroup]="formProfile">
+      <form *ngIf="formAvatar" [formGroup]="formAvatar">
+        <input type="file" #fileInput style="visibility: hidden; height: 0px" name="files[]" (change)="processWebImage($event)" />
+        <div class="profile-image-wrapper" (click)="getPicture()">
+          <div class="profile-image-placeholder" *ngIf="!this.formAvatar.controls.picture.value">
+            <ion-icon name="add"></ion-icon>
+            <div>
+              {{ 'ITEM_CREATE_CHOOSE_IMAGE' | translate }}
+            </div>
+          </div>
+          <div class="profile-image" [style.backgroundImage]="getProfileImageStyle()" *ngIf="this.formAvatar.get('picture').value"></div>
+        </div>
+      </form>
+      <ion-list>
+        <ion-item>
+          <ion-input type="text" placeholder="{{ 'ITEM_NAME_PLACEHOLDER' | translate }}" formControlName="name"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input type="text" placeholder="email" formControlName="email"></ion-input>
+        </ion-item>
+      </ion-list>
+    </form>
+    
+  </ion-list>
+
+</ion-content>

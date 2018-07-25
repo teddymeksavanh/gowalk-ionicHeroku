@@ -1,0 +1,191 @@
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>{{ item.name }}</ion-title>
+    <ion-buttons end>
+      <button ion-button icon-only navPop>
+        <ion-icon name="close"></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content>
+  <!-- <div
+    *ngIf="item && item.profilePic"
+    class="item-profile"
+    text-center
+    #profilePic
+    [style.background-image]="'url(' + item.profilePic + ')'"
+  >
+  </div> -->
+
+  <!-- <div
+    class="item-profile"
+    text-center
+    #profilePic
+    [style.background-image]="'url(assets/img/home.jpg)'"
+  >
+  </div> -->
+
+  <div style="position: relative;">
+    <ion-slides #slides style="height: initial" >
+      <ion-slide>
+        <div>
+            <div style="position: relative;">
+                  <div id="map" [style.height.px]="500"></div>
+                  <input id="pac-input" class="controls" type="text" placeholder="Trouver un lieu.." style="position: absolute; top: 15px; left: 0; right: 0; width: 250px; padding: 5px; margin: -5px auto 0 auto;">
+                  <div style="position: absolute; right: 15px; top: 15px;">
+                    <button ion-button block (click)="savePath()" *ngIf="showSaveButton">
+                      <ion-icon name="folder"></ion-icon>
+                    </button>
+                    <button ion-button block color="danger" (click)="deleteStroll()" *ngIf="showDeleteButton">
+                      <ion-icon name="remove-circle"></ion-icon>
+                    </button>
+                    <button ion-button block color="danger" (click)="undo()" *ngIf="showDeleteButton">
+                      <ion-icon name="undo"></ion-icon>
+                    </button>
+                    <button ion-button block color="danger" (click)="redo()" *ngIf="showDeleteButton">
+                      <ion-icon name="redo"></ion-icon>
+                    </button>
+                  </div>
+                <!-- <div class="inside-action-buttons" *ngIf="withInsideActionButtons">
+                    <div>
+                        <div class="btn-group-vertical">
+                          <button *ngIf="selectedShape"
+                            (click)="removeSelectedShape()">
+                          </button>
+                        </div>
+                    </div>
+                </div> -->
+            </div>
+        </div>
+      </ion-slide>
+
+      <ion-slide>
+          <img height="500" style="object-fit: cover; height: 500px !important" [src]="item && item.gallery && item.gallery.url && baseApiUrl + item.gallery.url || item.gallery_seed || '/assets/img/placeholder.png'" />
+      </ion-slide>
+
+      <ng-container *ngIf="item && item.paths && item.paths.length > 0">
+        <ion-slide *ngFor="let path of item.paths">
+            <img height="500" style="object-fit: cover; height: 500px !important" [src]="path && path.photo && path.photo.url && baseApiUrl + path.photo.url || path.photo_seed || '/assets/img/placeholder.png'" />
+        </ion-slide>
+      </ng-container>
+
+    </ion-slides>
+
+    <div style="position: absolute; bottom: 0; margin: 0 auto; z-index: 100; width: 100%; text-align: center;">
+      <button style="padding: 0" type="submit" large ion-button clear class="btnPrev" (click)="prev()">
+        <ion-icon name="arrow-dropleft"></ion-icon>
+      </button>
+      <button style="padding: 0" type="submit" large ion-button clear class="btnNext" (click)="next()">
+        <ion-icon name="arrow-dropright"></ion-icon>
+      </button>
+    </div>
+  </div>
+
+
+  <div class="item-detail">
+    <ion-list>
+        <ion-card style="margin: 0; width: 100%" class="list-ion-card">
+            <button class="list-button" (click)="openUser(item && item.user, item.created_by)" style="z-index: 1000; width: 100%; padding-right: 0;">
+              <ion-item>
+                <ion-avatar item-start>
+                  <img [src]="item && item.user && item.user.picture && item.user.picture.url && baseApiUrl + item.user.picture.url || item.user.picture_seed || '/assets/img/placeholder.png'">
+                </ion-avatar>
+                <h2 *ngIf="item && item.user && item.user.name">{{item.user.name}}</h2>
+                <p *ngIf="item && item.city">{{item.city}}</p>
+                <p *ngIf="item && item.length" style="font-size: 11px;">{{item.length}} m <ion-icon name="walk" style="margin-left: 5px;"></ion-icon></p>
+                <button style="position: absolute; right: 0; top: 0; bottom: 0; margin: auto 15px;" float-right *ngIf="isAdmin()" ion-button (click)="editStroll()">
+                    <ion-icon name="folder"></ion-icon>
+                  </button>
+              </ion-item>
+            </button>
+                    
+            <ion-card-content style="padding-left: 40px; padding-top: 25px; padding-right: 40px;">
+              <h4 style="text-align: left; font-size: 25px; text-transform: uppercase; letter-spacing: 2px;">
+                {{item.name}}
+              </h4>
+              <p style="text-align: left; margin-top: 15px; margin-bottom: 15px; margin-bottom: 15px;" *ngIf="item.strolltypes && item.strolltypes.length > 0">
+                <span class="notag" [ngStyle]="{'background-color': type && type.type && type.type.color ? type.type.color : '#488aff'}" *ngFor="let type of item.strolltypes">
+                  #{{ type.type.name }}
+                </span>
+              </p>
+              <p style="text-align: left;">
+                {{item.description}}
+              </p>
+            </ion-card-content>
+            
+            <ion-row>
+              <ion-col style="padding-left: 25px;">
+                <form *ngIf="commentForm" [formGroup]="commentForm">
+                  <ion-input type="text" placeholder="Ajouter un commentaire" formControlName="description" style="padding: 0px 8px">
+                  </ion-input>
+                  <button ion-button round outline (click)="publish(item)" style="position: absolute; right: 40px; z-index: 1; top: 4px;">Publier</button>
+                </form>
+              </ion-col>
+            </ion-row>
+    
+            <ion-row style="margin-bottom: 25px;">
+              <ion-col style="display: flex; align-items: center; justify-content: center;">
+                <button ion-button icon-start round clear color="{{isColored(item)}}" (click)="addNotes(item)">
+                  <ion-icon name="thumbs-up"></ion-icon>
+                  <div>
+                    {{ item.notes.length }}
+                    <!-- {{ item.notes.length > 0 ? "J'aimes" : "J'aime" }} -->
+                  </div>
+                </button>
+                <!-- <button ion-button (click)="checkComments(item)">Voir les {{ item && item.comments && item.comments.length && item.comments.length > 0 ? item.comments.length : '' }} commentaires</button> -->
+    
+                <button ion-button icon-start round clear (click)="checkComments(item)" *ngIf="item && item.comments && item.comments.length && item.comments.length > 0">
+                  <ion-icon name="text"></ion-icon>
+                  <div>
+                    {{ item.comments.length }}
+                    <!-- {{ item.comments.length > 0 ? 'Commentaires' : 'Commentaires'}} -->
+                  </div>
+                </button>
+
+                <button ion-button icon-start clear round color="dark" style="opacity: 0.5" *ngIf="item.comments && item.comments.length > 0 && item.comments[item.comments.length-1] && item.comments[item.comments.length-1].created_at">
+                  <div>
+                      <!-- {{ item.comments && item.comments.length > 0 && item.comments[item.comments.length-1] && item.comments[item.comments.length-1].created_at && item.comments[item.comments.length-1].created_at | date:'short' }} -->
+                    <!-- {{ item.comments.length > 0 ? 'Commentaires' : 'Commentaires'}} -->
+                    {{ item.comments && item.comments.length > 0 && item.comments[item.comments.length-1] && item.comments[item.comments.length-1].created_at && item.comments[item.comments.length-1].created_at | date:'short' }}
+                  </div>
+                </button>
+              </ion-col>
+            </ion-row>
+          
+          </ion-card>
+    </ion-list>
+    <!-- <p>{{item.description}}</p> -->
+  </div>
+  <!-- <div *ngIf="withOutsideActionButtons">
+      <div>
+          <button *ngIf="selectedShape" (click)="removeSelectedShape()">
+              Remove the selected polygon
+          </button>
+          <button (click)="submitPolyline()">
+              Validate
+          </button>
+      </div>
+  </div> -->
+
+  <!-- <agm-map 
+    [latitude]="lat" 
+    [longitude]="lng"
+    [zoom]="zoomOption"
+    [fullscreenControl]="true"
+    [streetViewControl]="'false'"
+    [mapTypeControl]="'true'"
+  >
+    <ng-container>
+        <agm-polyline [strokeColor]="'red'" [strokeWeight]="2">
+            <agm-polyline-point *ngFor="let path of paths" [latitude]="path.latitude" [longitude]="path.longitude">
+              <agm-circle [latitude]="path.latitude" [longitude]="path.longitude" [fillOpacity]="1" [fillColor]="'red'" [radius]="15" ></agm-circle>
+            </agm-polyline-point>
+        </agm-polyline>
+    </ng-container>
+  </agm-map> -->
+</ion-content>
